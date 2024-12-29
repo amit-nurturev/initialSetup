@@ -1,1 +1,7 @@
 .env
+myenv/
+.DS_Store
+
+# Ignore Python bytecode and cache
+__pycache__/
+*.pyc
