@@ -20,7 +20,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: 'arn:aws:iam::979176640062:role/github-action-role'
-          aws-region: ${{vars.AWS_REGION}}
+          aws-region: ${{ vars.AWS_REGION }}
           mask-aws-account-id: 'false'
           
       - name: Setup Node
@@ -53,7 +53,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           EOF
 
-      
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -63,7 +62,7 @@ jobs:
 
       - name: Log in to AWS ECR
         run: |
-          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 979176640062.dkr.ecr.ap-south-1.amazonaws.com
+          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin 979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
           
       - name: Build Docker image 
         run: |
@@ -71,13 +70,13 @@ jobs:
 
       - name: Tag Docker image for ECR
         run: |
-          docker tag test:latest 979176640062.dkr.ecr.ap-south-1.amazonaws.com/test:latest
+          docker tag test:latest 979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/test:latest
           
       - name: Push Docker image to AWS ECR
         run: |
-          docker push 979176640062.dkr.ecr.ap-south-1.amazonaws.com/test:latest
+          docker push 979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/test:latest
           
       - name: Deploy Lambda functions
         run: sls deploy --stage staging
         env:
-          AWS_REGION: ${{vars.AWS_REGION}}
+          AWS_REGION: ${{ vars.AWS_REGION }}
