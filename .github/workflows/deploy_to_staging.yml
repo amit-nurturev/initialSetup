@@ -43,14 +43,14 @@ jobs:
       - name: Create env file
         run: |
           cat > env.yml << EOF
-          ${{ vars.ENV }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
           EOF
           
       - name: Create env file for secrets
         run: |
           cat > env_secrets.yml << EOF
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY_STAGING }}
-          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET_STAGING }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           EOF
 
       
