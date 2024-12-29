@@ -63,19 +63,19 @@ jobs:
 
       - name: Log in to AWS ECR
         run: |
-          aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 979176640062.dkr.ecr.ap-south-1.amazonaws.com
           
       - name: Build Docker image 
         run: |
-          docker build -t initialsetup_for_test:latest .
+          docker build -t test .
 
       - name: Tag Docker image for ECR
         run: |
-          docker tag initialsetup_for_test:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/intialsetup:latest
+          docker tag test:latest 979176640062.dkr.ecr.ap-south-1.amazonaws.com/test:latest
           
       - name: Push Docker image to AWS ECR
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/intialsetup:latest   
+          docker push 979176640062.dkr.ecr.ap-south-1.amazonaws.com/test:latest
           
       - name: Deploy Lambda functions
         run: sls deploy --stage staging
