@@ -1,8 +1,5 @@
 import sys
-
-sys.path.append(".")
-sys.path.append("../..")
-sys.path.append("../")
+sys.path.append("..")
 import os
 from supabase import create_client, Client
 import pandas as pd
@@ -23,8 +20,6 @@ class DB_Client:
         self.supabase.postgrest.aclose()
 
     def initiate_supabase_client(self):
-        print("url is",os.environ.get("SUPABASE_URL"))
-        print("key is",os.environ.get("SUPABASE_KEY"))
         try:
             url: str = os.environ.get("SUPABASE_URL")
             key: str = os.environ.get("SUPABASE_KEY")

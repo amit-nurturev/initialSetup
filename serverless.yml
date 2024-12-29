@@ -1,0 +1,53 @@
+service: initial-setup
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+  defaultStage: staging
+  environment: ${file(./env.yml):${self:provider.stage}, file(./env.yml):staging}
+  secrets: ${file(./env_secrets.yml)}
+  region: ap-south-1
+
+
+provider:
+  name: aws
+  stage: ${opt:stage,self:custom.defaultStage}
+  environment:
+    SUPABASE_KEY: ${self:custom.secrets.SUPABASE_KEY}
+    SUPABASE_URL: ${self:custom.secrets.SUPABASE_URL}
+  runtime: python3.9
+  region: ${self:cutom.environment.AWS_REGION, self:custom.region}
+
+  ecr:
+    images:
+      latest:
+        path: './'
+        file: ./Dockerfile
+
+
+package:
+  exclude:
+    - .DS_Store
+    - .env
+    - __pycache__/**
+    - *.pyc
+    - .git/**
+    - myenv/**
+    - .gitignore
+    - .serverless/**
+
+  include:
+    - ./constants/**xx
+    - ./domains/**
+    - ./infrastructure/**
+    - ./utils/**
+    - ./Dockerfile
+
+functions:
+  initialsetup:
+    image:
+      name: ${self:provider.region}.dkr.ecr.${self:provider.region}.amazonaws.com/initialsetup:latest
+
+
+plugins:
+  - serverless-python-requirements
