@@ -28,9 +28,11 @@ jobs:
 
       - name: Create env file
         run: |
-          cat > env.yml << EOF
-          AWS_REGION: ${{ vars.AWS_REGION }}
-          EOF
+          echo "staging:" > env.yml
+          echo "  AWS_REGION: ${{ vars.AWS_REGION }}" >> env.yml
+          echo "  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}" >> env.yml
+          echo "  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}" >> env.yml
+
 
       - name: Create env file for secrets
         run: |
