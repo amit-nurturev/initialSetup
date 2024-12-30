@@ -54,7 +54,8 @@ jobs:
           aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}
 
       - name: Build Docker image
-        run: docker build -t test .
+        run: docker build -t test -f ./Dockerfile .
+       
 
       - name: Tag Docker image for ECR
         run: docker tag test:latest ${{ env.ECR_URI }}/test:latest
