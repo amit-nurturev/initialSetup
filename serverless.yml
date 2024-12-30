@@ -1,7 +1,8 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: amitnurturev
+org: nurturev
 service: initial-setup
 
+frameworkVersion: '3'
 custom:
   pythonRequirements:
     dockerizePip: true
@@ -23,7 +24,7 @@ ecr:
   images:
     latest:
       path: ./
-      file: ./Dockerfile
+      file: Dockerfile
 
 package:
   exclude:
