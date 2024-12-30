@@ -23,7 +23,6 @@ provider:
 ecr:
   images:
     latest:
-      path: ./
       file: Dockerfile
 
 package:
@@ -39,7 +38,7 @@ package:
     - ./domains/**
     - ./infrastructure/**
     - ./utils/**
-    - ./Dockerfile
+    - Dockerfile
 
 functions:
   initialsetup:
