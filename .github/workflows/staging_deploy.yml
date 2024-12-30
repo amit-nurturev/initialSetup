@@ -1,53 +1,37 @@
 name: Deploy TO Staging
 on:
   push:
-    branches: [ "main" ,"staging", "test" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ "main", "staging", "test" ]
   workflow_dispatch:
-      
-# permissions:
-#   id-token: write
-#   contents: read
-  
+
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
-    
+    env:
+      ECR_URI: "979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com"
+
     steps:
-      - name: Checkout (to provide access to our code)
+      - name: Checkout
         uses: actions/checkout@v3
-        
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: 'arn:aws:iam::979176640062:role/github-action-role'
-          aws-region: ${{ vars.AWS_REGION }}
-          mask-aws-account-id: 'false'
-          
+
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
           node-version: 16.x
-          
+
       - name: Install Serverless Framework
         run: npm install -g serverless
-        
-      - name: Install Serverless Compose
-        run: npm install -g @serverless/compose
-        
-      - name: Install Serverless Python Requirements Plugin
-        run: npm install -g serverless-python-requirements
-        
-      - name: Install serverless plugins
-        run: npm install serverless-offline -g
-        
+
+      - name: Install Serverless Plugins
+        run: |
+          npm install -g @serverless/compose serverless-python-requirements serverless-offline
+
       - name: Create env file
         run: |
           cat > env.yml << EOF
           AWS_REGION: ${{ vars.AWS_REGION }}
           EOF
-          
+
       - name: Create env file for secrets
         run: |
           cat > env_secrets.yml << EOF
@@ -56,29 +40,32 @@ jobs:
           EOF
 
       - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      - name: Verify AWS CLI Configuration
+        run: aws sts get-caller-identity
+
       - name: Log in to AWS ECR
         run: |
-          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin 979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
-          
-      - name: Build Docker image 
-        run: |
-          docker build -t test .
+          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}
+
+      - name: Build Docker image
+        run: docker build -t test .
 
       - name: Tag Docker image for ECR
-        run: |
-          docker tag test:latest 979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/test:latest
-          
+        run: docker tag test:latest ${{ env.ECR_URI }}/test:latest
+
       - name: Push Docker image to AWS ECR
-        run: |
-          docker push 979176640062.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/test:latest
-          
+        run: docker push ${{ env.ECR_URI }}/test:latest
+
       - name: Deploy Lambda functions
         run: sls deploy --stage staging
         env:
           AWS_REGION: ${{ vars.AWS_REGION }}
+
+      - name: Clean up temp files
+        run: rm -f env.yml env_secrets.yml
