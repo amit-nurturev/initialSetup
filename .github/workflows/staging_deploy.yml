@@ -33,7 +33,6 @@ jobs:
           echo "  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}" >> env.yml
           echo "  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}" >> env.yml
 
-
       - name: Create env file for secrets
         run: |
           cat > env_secrets.yml << EOF
@@ -54,13 +53,9 @@ jobs:
       - name: Log in to AWS ECR
         run: |
           aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}
-          
-      - name: List repository contents
-        run: ls -la
 
       - name: Build Docker image
         run: docker build -t test -f ./Dockerfile .
-       
 
       - name: Tag Docker image for ECR
         run: docker tag test:latest ${{ env.ECR_URI }}/test:latest
@@ -75,3 +70,4 @@ jobs:
 
       - name: Clean up temp files
         run: rm -f env.yml env_secrets.yml
+
