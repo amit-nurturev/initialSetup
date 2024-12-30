@@ -1,0 +1,51 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: nurturev
+service: initial-setup
+
+frameworkVersion: '3'
+custom:
+  pythonRequirements:
+    dockerizePip: true
+  defaultStage: staging
+  environment: '${file(./env.yml):staging}'
+  secrets: '${file(./env_secrets.yml)}'
+  region: ${env:AWS_REGION, 'ap-south-1'}
+
+provider:
+  name: aws
+  stage: '${opt:stage, self:custom.defaultStage}'
+  environment:
+    SUPABASE_KEY: '${self:custom.secrets.SUPABASE_KEY}'
+    SUPABASE_URL: '${self:custom.secrets.SUPABASE_URL}'
+  runtime: python3.9
+  region: ap-south-1
+
+ecr:
+  images:
+    latest:
+      file: Dockerfile
+
+package:
+  exclude:
+    - .DS_Store
+    - .env
+    - .git/**
+    - myenv/**
+    - .gitignore
+    - .serverless/**
+  include:
+    - ./constants/**
+    - ./domains/**
+    - ./infrastructure/**
+    - ./utils/**
+    - Dockerfile
+
+functions:
+  initialsetup:
+    image:
+      name: >-
+        ${self:provider.region}.dkr.ecr.ap-south-1.amazonaws.com/test:latest
+
+plugins:
+  - serverless-python-requirements
+  - serverless-offline
