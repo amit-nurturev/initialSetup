@@ -7,7 +7,7 @@ custom:
   pythonRequirements:
     dockerizePip: true
   defaultStage: staging
-  environment: '${file(./env.yml):staging}'
+  environment: ${file(env.yml):${self:provider.stage}, file(env.yml):staging}
   secrets: '${file(./env_secrets.yml)}'
   region: ${env:AWS_REGION, 'ap-south-1'}
 
