@@ -22,7 +22,7 @@ provider:
 functions:
   initialsetup:
     image:
-      name: test
+      name: initial-setup-image
 plugins:
   - serverless-python-requirements
   - serverless-offline
