@@ -55,13 +55,14 @@ jobs:
           aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}
 
       - name: Build Docker image
-        run: docker build -t test -f ./Dockerfile .
+        run: docker build -t initial-setup-image -f ./Dockerfile .
 
       - name: Tag Docker image for ECR
-        run: docker tag test:latest ${{ env.ECR_URI }}/test:latest
+        run: docker tag initial-setup-image:latest ${{ env.ECR_URI }}/initial-setup-image:latest
 
       - name: Push Docker image to AWS ECR
-        run: docker push ${{ env.ECR_URI }}/test:latest
+        run: docker push ${{ env.ECR_URI }}/initial-setup-image:latest
+
 
       - name: Deploy Lambda functions
         run: sls deploy --stage staging
